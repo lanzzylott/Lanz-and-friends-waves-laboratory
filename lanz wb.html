@@ -1,0 +1,3454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lanz and Friends Wave Laboratory</title>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #020817;
+    color: white;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   LOADING SCREEN
+========================================================= */
+
+#loadingScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #102b55 0%,
+            #061329 45%,
+            #020817 100%
+        );
+
+    transition:
+        opacity 0.8s ease,
+        visibility 0.8s ease;
+}
+
+#loadingScreen.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loadingTitle {
+    position: relative;
+
+    max-width: 90%;
+    margin-bottom: 35px;
+
+    text-align: center;
+
+    font-size: clamp(30px, 6vw, 70px);
+    font-weight: 900;
+    letter-spacing: 2px;
+
+    color: #dceeff;
+
+    overflow: hidden;
+}
+
+.loadingTitle::after {
+    content: "";
+
+    position: absolute;
+
+    top: -20%;
+    left: 100%;
+
+    width: 100px;
+    height: 140%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.95),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    animation:
+        titleShine 2.2s linear infinite;
+}
+
+@keyframes titleShine {
+
+    from {
+        left: 100%;
+    }
+
+    to {
+        left: -30%;
+    }
+
+}
+
+.loader {
+    width: min(500px, 80%);
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,0.12);
+}
+
+.loaderBar {
+    width: 0%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #38bdf8,
+            #60a5fa,
+            #22d3ee
+        );
+
+    animation:
+        loading 3s linear forwards;
+}
+
+@keyframes loading {
+
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+
+}
+
+#loadingPercent {
+    margin-top: 12px;
+
+    color: #8fb8df;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+#mainContent {
+    min-height: 100vh;
+
+    opacity: 0;
+
+    transition:
+        opacity 1s ease;
+}
+
+#mainContent.show {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    padding:
+        35px
+        20px
+        20px;
+
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+
+    font-size:
+        clamp(
+            28px,
+            5vw,
+            52px
+        );
+
+    background:
+        linear-gradient(
+            90deg,
+            #60a5fa,
+            #22d3ee,
+            #ffffff,
+            #60a5fa
+        );
+
+    background-size: 300%;
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+
+    animation:
+        titleGradient 6s linear infinite;
+}
+
+@keyframes titleGradient {
+
+    from {
+        background-position: 0%;
+    }
+
+    to {
+        background-position: 300%;
+    }
+
+}
+
+header p {
+    margin-top: 10px;
+
+    color: #91a9c5;
+}
+
+
+/* =========================================================
+   WAVE SELECTOR
+========================================================= */
+
+.waveSelector {
+    width: min(1200px, 94%);
+
+    margin:
+        0
+        auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, 1fr);
+
+    gap: 10px;
+}
+
+.waveTab {
+    padding: 14px 8px;
+
+    border:
+        1px solid
+        rgba(96,165,250,0.2);
+
+    border-radius: 12px;
+
+    background:
+        rgba(10,27,53,0.75);
+
+    color: #b9cbe0;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.waveTab:hover {
+    transform: translateY(-3px);
+
+    border-color:
+        #38bdf8;
+
+    color: white;
+}
+
+.waveTab.active {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(14,116,144,0.65),
+            rgba(37,99,235,0.65)
+        );
+
+    color: white;
+
+    border-color:
+        #38bdf8;
+
+    box-shadow:
+        0 0 20px
+        rgba(56,189,248,0.2);
+}
+
+
+/* =========================================================
+   LAB
+========================================================= */
+
+.lab {
+    width: min(1200px, 94%);
+
+    margin:
+        20px
+        auto
+        50px;
+}
+
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+.canvasContainer {
+    position: relative;
+
+    width: 100%;
+    height: 480px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    border:
+        1px solid
+        rgba(56,189,248,0.25);
+
+    background:
+        #030b18;
+
+    box-shadow:
+        0 20px 70px
+        rgba(0,0,0,0.35),
+
+        inset 0 0 50px
+        rgba(30,100,180,0.05);
+}
+
+canvas {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+}
+
+
+/* =========================================================
+   WAVE CHARACTER
+========================================================= */
+
+#waveCharacter {
+    position: absolute;
+
+    top: 18px;
+    right: 18px;
+
+    width: 230px;
+
+    z-index: 10;
+
+    pointer-events: none;
+
+    animation:
+        characterFloat
+        3s
+        ease-in-out
+        infinite;
+}
+
+@keyframes characterFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+
+}
+
+
+/* =========================================================
+   CHARACTER SPEECH BUBBLE
+========================================================= */
+
+.characterBubble {
+    position: relative;
+
+    padding:
+        13px
+        15px;
+
+    margin-bottom: 8px;
+
+    border:
+        1px solid
+        rgba(56,189,248,0.55);
+
+    border-radius: 15px;
+
+    background:
+        rgba(3,15,32,0.93);
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.3),
+
+        0 0 20px
+        rgba(56,189,248,0.08);
+}
+
+.characterBubble::after {
+    content: "";
+
+    position: absolute;
+
+    bottom: -9px;
+    right: 38px;
+
+    width: 16px;
+    height: 16px;
+
+    background:
+        rgba(3,15,32,0.93);
+
+    border-right:
+        1px solid
+        rgba(56,189,248,0.55);
+
+    border-bottom:
+        1px solid
+        rgba(56,189,248,0.55);
+
+    transform:
+        rotate(45deg);
+}
+
+#characterTitle {
+    margin-bottom: 5px;
+
+    color: #38bdf8;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#characterText {
+    color: #d7e7f7;
+
+    font-size: 11px;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   CHARACTER BODY
+========================================================= */
+
+.characterBody {
+    position: relative;
+
+    width: 95px;
+    height: 130px;
+
+    margin:
+        0
+        25px
+        0
+        auto;
+}
+
+
+/* ANTENNA */
+
+.characterAntenna {
+    position: absolute;
+
+    top: 0;
+    left: 45px;
+
+    width: 4px;
+    height: 17px;
+
+    border-radius: 5px;
+
+    background:
+        #38bdf8;
+}
+
+.characterAntenna::before {
+    content: "";
+
+    position: absolute;
+
+    top: -7px;
+    left: -2.5px;
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background:
+        #22d3ee;
+
+    box-shadow:
+        0 0 12px
+        #22d3ee;
+
+    animation:
+        antennaBlink
+        1.4s
+        infinite;
+}
+
+@keyframes antennaBlink {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+}
+
+
+/* HEAD */
+
+.characterHead {
+    position: absolute;
+
+    top: 15px;
+    left: 13px;
+
+    width: 70px;
+    height: 55px;
+
+    border:
+        3px solid
+        #38bdf8;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #d9f3ff,
+            #7dd3fc
+        );
+
+    box-shadow:
+        0 0 20px
+        rgba(56,189,248,0.25);
+}
+
+
+/* EYES */
+
+.characterEye {
+    position: absolute;
+
+    top: 17px;
+
+    width: 10px;
+    height: 13px;
+
+    border-radius: 50%;
+
+    background:
+        #061329;
+
+    animation:
+        eyeBlink
+        4s
+        infinite;
+}
+
+.characterEye.left {
+    left: 17px;
+}
+
+.characterEye.right {
+    right: 17px;
+}
+
+@keyframes eyeBlink {
+
+    0%,
+    45%,
+    50%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    47% {
+        transform: scaleY(0.1);
+    }
+
+}
+
+
+/* SMILE */
+
+.characterSmile {
+    position: absolute;
+
+    bottom: 9px;
+    left: 21px;
+
+    width: 22px;
+    height: 10px;
+
+    border-bottom:
+        3px solid
+        #061329;
+
+    border-radius:
+        0 0 20px 20px;
+}
+
+
+/* BODY */
+
+.characterBodyPart {
+    position: absolute;
+
+    top: 72px;
+    left: 20px;
+
+    width: 56px;
+    height: 48px;
+
+    border:
+        2px solid
+        #38bdf8;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #2563eb,
+            #0f3d82
+        );
+}
+
+
+/* SCREEN */
+
+.characterScreen {
+    position: absolute;
+
+    top: 10px;
+    left: 12px;
+
+    width: 28px;
+    height: 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border:
+        1px solid
+        #38bdf8;
+
+    border-radius: 5px;
+
+    background:
+        #061329;
+
+    color:
+        #38bdf8;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    animation:
+        screenPulse
+        2s
+        infinite;
+}
+
+@keyframes screenPulse {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 3px
+            rgba(56,189,248,0.3);
+    }
+
+    50% {
+        box-shadow:
+            0 0 12px
+            rgba(56,189,248,0.8);
+    }
+
+}
+
+
+/* ARMS */
+
+.characterArm {
+    position: absolute;
+
+    width: 13px;
+    height: 42px;
+
+    border-radius: 10px;
+
+    background:
+        #38bdf8;
+}
+
+.leftArm {
+    top: 73px;
+    left: 5px;
+
+    transform:
+        rotate(25deg);
+}
+
+.rightArm {
+    top: 73px;
+    right: 5px;
+
+    transform:
+        rotate(-25deg);
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls {
+    margin-top: 18px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+}
+
+.controlCard {
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(96,165,250,0.18);
+
+    border-radius: 16px;
+
+    background:
+        rgba(9,24,47,0.9);
+
+    transition:
+        transform 0.25s ease,
+        border 0.25s ease;
+}
+
+.controlCard:hover {
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(56,189,248,0.55);
+}
+
+.controlTop {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    margin-bottom: 14px;
+}
+
+.controlName {
+    color: #d8e8fa;
+
+    font-weight: bold;
+}
+
+.controlValue {
+    min-width: 75px;
+
+    color: #38bdf8;
+
+    font-weight: bold;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   SLIDERS
+========================================================= */
+
+.slider {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: block;
+
+    width: 100%;
+    height: 9px;
+
+    margin: 0;
+
+    padding: 0;
+
+    outline: none;
+
+    border: none;
+
+    border-radius: 20px;
+
+    cursor: grab;
+
+    touch-action: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            #38bdf8 0%,
+            #2563eb 50%,
+            #162d4e 50%,
+            #162d4e 100%
+        );
+}
+
+.slider:active {
+    cursor: grabbing;
+}
+
+
+/* CHROME / EDGE / SAFARI */
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 23px;
+    height: 23px;
+
+    border:
+        4px solid
+        #38bdf8;
+
+    border-radius: 50%;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 0 15px
+        rgba(56,189,248,0.7);
+
+    cursor: grab;
+
+    transition:
+        transform 0.1s ease;
+}
+
+.slider:active::-webkit-slider-thumb {
+    cursor: grabbing;
+
+    transform:
+        scale(1.15);
+}
+
+
+/* FIREFOX */
+
+.slider::-moz-range-thumb {
+    width: 23px;
+    height: 23px;
+
+    border:
+        4px solid
+        #38bdf8;
+
+    border-radius: 50%;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 0 15px
+        rgba(56,189,248,0.7);
+
+    cursor: grab;
+}
+
+.slider:active::-moz-range-thumb {
+    cursor: grabbing;
+}
+
+
+/* =========================================================
+   INFORMATION
+========================================================= */
+
+.info {
+    margin-top: 15px;
+
+    padding: 20px;
+
+    border:
+        1px solid
+        rgba(96,165,250,0.18);
+
+    border-radius: 16px;
+
+    background:
+        rgba(9,24,47,0.9);
+}
+
+.infoGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+}
+
+.infoBox {
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,0.035);
+
+    text-align: center;
+}
+
+.infoBox span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #7f9ab8;
+
+    font-size: 12px;
+}
+
+.infoBox strong {
+    color: #e5f4ff;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.buttons {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    margin-top: 18px;
+
+    flex-wrap: wrap;
+}
+
+button.action {
+    padding:
+        12px
+        22px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background:
+        #12315b;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+button.action:hover {
+    transform:
+        translateY(-2px);
+
+    background:
+        #17457e;
+}
+
+button.action:active {
+    transform:
+        scale(0.96);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .waveSelector {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .controls {
+        grid-template-columns:
+            1fr;
+    }
+
+    .infoGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .canvasContainer {
+        height: 420px;
+    }
+
+    #waveCharacter {
+        top: 8px;
+        right: 5px;
+
+        transform:
+            scale(0.72);
+
+        transform-origin:
+            top right;
+    }
+
+}
+
+@media (max-width: 550px) {
+
+    .waveSelector {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .canvasContainer {
+        height: 380px;
+    }
+
+    .infoGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     LOADING SCREEN
+===================================================== -->
+
+<div id="loadingScreen">
+
+    <div class="loadingTitle">
+        Lanz and Friends Wave Laboratory
+    </div>
+
+    <div class="loader">
+        <div class="loaderBar"></div>
+    </div>
+
+    <div id="loadingPercent">
+        0%
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN WEBSITE
+===================================================== -->
+
+<div id="mainContent">
+
+
+<header>
+
+    <h1>
+        Lanz and Friends Wave Laboratory
+    </h1>
+
+    <p>
+        Interactive Wave Simulation Laboratory
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     WAVE TYPES
+===================================================== -->
+
+<div class="waveSelector">
+
+    <button
+        class="waveTab active"
+        data-wave="water">
+
+        🌊 Water
+
+    </button>
+
+    <button
+        class="waveTab"
+        data-wave="sound">
+
+        🔊 Sound
+
+    </button>
+
+    <button
+        class="waveTab"
+        data-wave="light">
+
+        💡 Light
+
+    </button>
+
+    <button
+        class="waveTab"
+        data-wave="transverse">
+
+        〰️ Transverse
+
+    </button>
+
+    <button
+        class="waveTab"
+        data-wave="seismic">
+
+        🌎 Seismic
+
+    </button>
+
+    <button
+        class="waveTab"
+        data-wave="longitudinal">
+
+        ↔️ Longitudinal
+
+    </button>
+
+</div>
+
+
+<div class="lab">
+
+
+<!-- =====================================================
+     CANVAS
+===================================================== -->
+
+<div class="canvasContainer">
+
+    <canvas id="waveCanvas"></canvas>
+
+
+    <!-- CHARACTER -->
+
+    <div id="waveCharacter">
+
+        <div class="characterBubble">
+
+            <div id="characterTitle">
+                🌊 Water Wave
+            </div>
+
+            <div id="characterText">
+                Water waves transfer energy across the
+                water surface. Watch the ripple move outward!
+            </div>
+
+        </div>
+
+
+        <div class="characterBody">
+
+            <div class="characterAntenna"></div>
+
+            <div class="characterHead">
+
+                <div class="characterEye left"></div>
+
+                <div class="characterEye right"></div>
+
+                <div class="characterSmile"></div>
+
+            </div>
+
+
+            <div class="characterBodyPart">
+
+                <div class="characterScreen">
+                    W
+                </div>
+
+            </div>
+
+
+            <div class="characterArm leftArm"></div>
+
+            <div class="characterArm rightArm"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONTROLS
+===================================================== -->
+
+<div class="controls">
+
+
+    <!-- FREQUENCY -->
+
+    <div class="controlCard">
+
+        <div class="controlTop">
+
+            <span class="controlName">
+                Frequency
+            </span>
+
+            <span class="controlValue">
+                <span id="frequencyValue">
+                    1.0
+                </span>
+                Hz
+            </span>
+
+        </div>
+
+        <input
+            id="frequency"
+            class="slider"
+            type="range"
+            min="0.2"
+            max="5"
+            step="0.1"
+            value="1"
+        >
+
+    </div>
+
+
+    <!-- AMPLITUDE -->
+
+    <div class="controlCard">
+
+        <div class="controlTop">
+
+            <span class="controlName">
+                Amplitude
+            </span>
+
+            <span class="controlValue">
+                <span id="amplitudeValue">
+                    50
+                </span>
+            </span>
+
+        </div>
+
+        <input
+            id="amplitude"
+            class="slider"
+            type="range"
+            min="10"
+            max="100"
+            step="1"
+            value="50"
+        >
+
+    </div>
+
+
+    <!-- WAVE SPEED -->
+
+    <div class="controlCard">
+
+        <div class="controlTop">
+
+            <span class="controlName">
+                Wave Speed
+            </span>
+
+            <span class="controlValue">
+                <span id="speedValue">
+                    100
+                </span>
+                m/s
+            </span>
+
+        </div>
+
+        <input
+            id="speed"
+            class="slider"
+            type="range"
+            min="20"
+            max="300"
+            step="5"
+            value="100"
+        >
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     INFORMATION
+===================================================== -->
+
+<div class="info">
+
+    <div class="infoGrid">
+
+
+        <div class="infoBox">
+
+            <span>
+                Frequency
+            </span>
+
+            <strong id="infoFrequency">
+                1.0 Hz
+            </strong>
+
+        </div>
+
+
+        <div class="infoBox">
+
+            <span>
+                Amplitude
+            </span>
+
+            <strong id="infoAmplitude">
+                50
+            </strong>
+
+        </div>
+
+
+        <div class="infoBox">
+
+            <span>
+                Wave Speed
+            </span>
+
+            <strong id="infoSpeed">
+                100 m/s
+            </strong>
+
+        </div>
+
+
+        <div class="infoBox">
+
+            <span>
+                Wavelength
+            </span>
+
+            <strong id="infoWavelength">
+                100.00 m
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BUTTONS
+===================================================== -->
+
+<div class="buttons">
+
+    <button
+        class="action"
+        id="playPause">
+
+        ⏸ Pause
+
+    </button>
+
+
+    <button
+        class="action"
+        id="step">
+
+        ▶ Step
+
+    </button>
+
+
+    <button
+        class="action"
+        id="reset">
+
+        ↻ Reset
+
+    </button>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const canvas =
+    document.getElementById(
+        "waveCanvas"
+    );
+
+const ctx =
+    canvas.getContext(
+        "2d"
+    );
+
+
+const frequency =
+    document.getElementById(
+        "frequency"
+    );
+
+const amplitude =
+    document.getElementById(
+        "amplitude"
+    );
+
+const speed =
+    document.getElementById(
+        "speed"
+    );
+
+
+const frequencyValue =
+    document.getElementById(
+        "frequencyValue"
+    );
+
+const amplitudeValue =
+    document.getElementById(
+        "amplitudeValue"
+    );
+
+const speedValue =
+    document.getElementById(
+        "speedValue"
+    );
+
+
+const infoFrequency =
+    document.getElementById(
+        "infoFrequency"
+    );
+
+const infoAmplitude =
+    document.getElementById(
+        "infoAmplitude"
+    );
+
+const infoSpeed =
+    document.getElementById(
+        "infoSpeed"
+    );
+
+const infoWavelength =
+    document.getElementById(
+        "infoWavelength"
+    );
+
+
+const playPause =
+    document.getElementById(
+        "playPause"
+    );
+
+const stepButton =
+    document.getElementById(
+        "step"
+    );
+
+const resetButton =
+    document.getElementById(
+        "reset"
+    );
+
+
+const characterTitle =
+    document.getElementById(
+        "characterTitle"
+    );
+
+const characterText =
+    document.getElementById(
+        "characterText"
+    );
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentWave =
+    "water";
+
+let isPlaying =
+    true;
+
+let simulationTime =
+    0;
+
+let lastTime =
+    performance.now();
+
+
+/* =========================================================
+   CHARACTER INFORMATION
+========================================================= */
+
+const waveExplanations = {
+
+    water: {
+
+        title:
+            "🌊 Water Wave",
+
+        text:
+            "Water waves transfer energy across the water surface. Watch the ripple move outward!"
+
+    },
+
+    sound: {
+
+        title:
+            "🔊 Sound Wave",
+
+        text:
+            "Sound is a mechanical longitudinal wave. Particles vibrate back and forth through compressions and rarefactions."
+
+    },
+
+    light: {
+
+        title:
+            "💡 Light Wave",
+
+        text:
+            "Light is an electromagnetic wave. Its electric and magnetic fields oscillate perpendicular to each other."
+
+    },
+
+    transverse: {
+
+        title:
+            "〰️ Transverse Wave",
+
+        text:
+            "Particles move perpendicular to the direction the wave travels. The highest point is the crest and the lowest is the trough."
+
+    },
+
+    seismic: {
+
+        title:
+            "🌎 Seismic Wave",
+
+        text:
+            "Earthquakes produce seismic waves. P-waves create compression while S-waves create transverse motion."
+
+    },
+
+    longitudinal: {
+
+        title:
+            "↔️ Longitudinal Wave",
+
+        text:
+            "Particles move parallel to the direction of wave travel, forming areas of compression and rarefaction."
+
+    }
+
+};
+
+
+function updateCharacter() {
+
+    const information =
+        waveExplanations[
+            currentWave
+        ];
+
+    if (!information) {
+        return;
+    }
+
+    characterTitle.textContent =
+        information.title;
+
+    characterText.textContent =
+        information.text;
+}
+
+
+/* =========================================================
+   CANVAS RESIZE
+========================================================= */
+
+function resizeCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const width =
+        Math.max(
+            1,
+            Math.floor(rect.width)
+        );
+
+    const height =
+        Math.max(
+            1,
+            Math.floor(rect.height)
+        );
+
+    const dpr =
+        Math.max(
+            1,
+            Math.min(
+                window.devicePixelRatio || 1,
+                2
+            )
+        );
+
+
+    canvas.width =
+        Math.floor(
+            width * dpr
+        );
+
+    canvas.height =
+        Math.floor(
+            height * dpr
+        );
+
+
+    canvas.style.width =
+        width + "px";
+
+    canvas.style.height =
+        height + "px";
+
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+
+    draw();
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+
+/* =========================================================
+   PHYSICS PARAMETERS
+========================================================= */
+
+function getParameters() {
+
+    const f =
+        Number(
+            frequency.value
+        );
+
+    const a =
+        Number(
+            amplitude.value
+        );
+
+    const v =
+        Number(
+            speed.value
+        );
+
+
+    /*
+        REAL PHYSICS:
+
+            v = fλ
+
+        therefore:
+
+            λ = v / f
+    */
+
+    const wavelength =
+        v / f;
+
+
+    /*
+        Visual conversion.
+
+        This does NOT change the real
+        wavelength shown to the user.
+
+        It only converts meters into
+        pixels for the simulation.
+    */
+
+    const pixelsPerMeter =
+        3;
+
+
+    const visualWavelength =
+        Math.max(
+            60,
+            Math.min(
+                1000,
+                wavelength *
+                pixelsPerMeter
+            )
+        );
+
+
+    const k =
+        (
+            Math.PI * 2
+        ) /
+        visualWavelength;
+
+
+    /*
+        Visual propagation speed.
+
+        Because the canvas uses pixels,
+        we convert the real m/s to
+        pixels/s.
+    */
+
+    const visualSpeed =
+        v *
+        pixelsPerMeter;
+
+
+    return {
+
+        f,
+        a,
+        v,
+
+        wavelength,
+
+        visualWavelength,
+
+        visualSpeed,
+
+        k
+
+    };
+}
+
+
+/* =========================================================
+   SLIDER BACKGROUND
+========================================================= */
+
+function updateSliderBackground(
+    slider
+) {
+
+    const min =
+        Number(
+            slider.min
+        );
+
+    const max =
+        Number(
+            slider.max
+        );
+
+    const value =
+        Number(
+            slider.value
+        );
+
+
+    const percent =
+        (
+            (value - min) /
+            (max - min)
+        ) * 100;
+
+
+    slider.style.background =
+        `
+        linear-gradient(
+            90deg,
+            #38bdf8 0%,
+            #2563eb ${percent}%,
+            #162d4e ${percent}%,
+            #162d4e 100%
+        )
+        `;
+}
+
+
+/* =========================================================
+   UI UPDATE
+========================================================= */
+
+function updateUI() {
+
+    const p =
+        getParameters();
+
+
+    frequencyValue.textContent =
+        p.f.toFixed(1);
+
+    amplitudeValue.textContent =
+        p.a.toFixed(0);
+
+    speedValue.textContent =
+        p.v.toFixed(0);
+
+
+    infoFrequency.textContent =
+        p.f.toFixed(1) +
+        " Hz";
+
+    infoAmplitude.textContent =
+        p.a.toFixed(0);
+
+    infoSpeed.textContent =
+        p.v.toFixed(0) +
+        " m/s";
+
+    infoWavelength.textContent =
+        p.wavelength.toFixed(2) +
+        " m";
+
+
+    updateSliderBackground(
+        frequency
+    );
+
+    updateSliderBackground(
+        amplitude
+    );
+
+    updateSliderBackground(
+        speed
+    );
+}
+
+
+/* =========================================================
+   SLIDER EVENTS
+========================================================= */
+
+frequency.addEventListener(
+    "input",
+    () => {
+
+        updateUI();
+
+        draw();
+
+    }
+);
+
+
+amplitude.addEventListener(
+    "input",
+    () => {
+
+        updateUI();
+
+        draw();
+
+    }
+);
+
+
+speed.addEventListener(
+    "input",
+    () => {
+
+        updateUI();
+
+        draw();
+
+    }
+);
+
+
+/* =========================================================
+   WAVE LABEL
+========================================================= */
+
+function waveLabel(
+    text,
+    x,
+    y,
+    options = {}
+) {
+
+    const size =
+        options.size || 14;
+
+    const color =
+        options.color || "#ffffff";
+
+
+    ctx.save();
+
+
+    ctx.font =
+        `700 ${size}px Arial`;
+
+
+    const textWidth =
+        ctx.measureText(
+            text
+        ).width;
+
+
+    const paddingX =
+        10;
+
+    const paddingY =
+        7;
+
+
+    ctx.fillStyle =
+        "rgba(2,8,23,0.84)";
+
+    ctx.strokeStyle =
+        "rgba(56,189,248,0.5)";
+
+    ctx.lineWidth = 1;
+
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - paddingX,
+        y - size - paddingY,
+        textWidth +
+            paddingX * 2,
+        size +
+            paddingY * 2,
+        8
+    );
+
+    ctx.fill();
+
+    ctx.stroke();
+
+
+    ctx.fillStyle =
+        color;
+
+
+    ctx.fillText(
+        text,
+        x,
+        y
+    );
+
+
+    ctx.restore();
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function drawBackground(
+    width,
+    height
+) {
+
+    const gradient =
+        ctx.createRadialGradient(
+            width / 2,
+            height / 2,
+            0,
+            width / 2,
+            height / 2,
+            width
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "#0a2141"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#020817"
+    );
+
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /* GRID */
+
+    ctx.strokeStyle =
+        "rgba(100,160,220,0.055)";
+
+    ctx.lineWidth = 1;
+
+
+    const grid =
+        40;
+
+
+    for (
+        let x = 0;
+        x < width;
+        x += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            0
+        );
+
+        ctx.lineTo(
+            x,
+            height
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    for (
+        let y = 0;
+        y < height;
+        y += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+}
+
+
+/* =========================================================
+   WAVE PHASE
+========================================================= */
+
+/*
+    Wave equation:
+
+        y = A sin(kx - ωt)
+
+    where:
+
+        k = 2π / λ
+        ω = 2πf
+
+    Since:
+
+        λ = v / f
+
+    changing frequency or speed
+    automatically changes the wave.
+*/
+
+function wavePhase(
+    x,
+    p
+) {
+
+    return (
+
+        p.k * x
+
+        -
+
+        2 *
+        Math.PI *
+        p.f *
+        simulationTime
+
+    );
+
+}
+
+
+/* =========================================================
+   TRANSVERSE WAVE
+========================================================= */
+
+function drawTransverse(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const center =
+        height / 2;
+
+
+    /* EQUILIBRIUM */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.12)";
+
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        center
+    );
+
+    ctx.lineTo(
+        width,
+        center
+    );
+
+    ctx.stroke();
+
+
+    /* WAVE */
+
+    ctx.strokeStyle =
+        "#38bdf8";
+
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 2
+    ) {
+
+        const phase =
+            wavePhase(
+                x,
+                p
+            );
+
+
+        const y =
+            center +
+
+            p.a *
+            1.5 *
+            Math.sin(
+                phase
+            );
+
+
+        if (x === 0) {
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            ctx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+
+    waveLabel(
+        "TRANSVERSE WAVE",
+        25,
+        35,
+        {
+            color: "#38bdf8",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "Crest",
+        width * 0.22,
+        center - p.a * 1.5 - 15,
+        {
+            color: "#facc15"
+        }
+    );
+
+
+    waveLabel(
+        "Trough",
+        width * 0.48,
+        center + p.a * 1.5 + 30,
+        {
+            color: "#a78bfa"
+        }
+    );
+
+
+    waveLabel(
+        "Amplitude",
+        width * 0.68,
+        center - p.a * 0.7,
+        {
+            color: "#22d3ee"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LONGITUDINAL WAVE
+========================================================= */
+
+function drawLongitudinal(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const center =
+        height / 2;
+
+
+    const spacing =
+        24;
+
+
+    for (
+        let baseX = 20;
+        baseX < width - 20;
+        baseX += spacing
+    ) {
+
+        const phase =
+            wavePhase(
+                baseX,
+                p
+            );
+
+
+        const displacement =
+            p.a *
+            0.25 *
+            Math.sin(
+                phase
+            );
+
+
+        const x =
+            baseX +
+            displacement;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            center,
+            5,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "#60a5fa";
+
+        ctx.fill();
+
+    }
+
+
+    waveLabel(
+        "LONGITUDINAL WAVE",
+        25,
+        35,
+        {
+            color: "#38bdf8",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "Compression",
+        width * 0.12,
+        center - 65,
+        {
+            color: "#f97316"
+        }
+    );
+
+
+    waveLabel(
+        "Rarefaction",
+        width * 0.53,
+        center - 65,
+        {
+            color: "#22d3ee"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SOUND WAVE
+========================================================= */
+
+function drawSound(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const center =
+        height / 2;
+
+
+    /* PRESSURE CURVE */
+
+    ctx.strokeStyle =
+        "#22d3ee";
+
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 2
+    ) {
+
+        const phase =
+            wavePhase(
+                x,
+                p
+            );
+
+
+        const y =
+            center -
+            p.a *
+            1.2 *
+            Math.sin(
+                phase
+            );
+
+
+        if (x === 0) {
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            ctx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+
+    /* PARTICLES */
+
+    const spacing =
+        28;
+
+
+    for (
+        let baseX = 15;
+        baseX < width;
+        baseX += spacing
+    ) {
+
+        const phase =
+            wavePhase(
+                baseX,
+                p
+            );
+
+
+        const displacement =
+            p.a *
+            0.18 *
+            Math.sin(
+                phase
+            );
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            baseX +
+                displacement,
+            center + 120,
+            4,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "#facc15";
+
+        ctx.fill();
+
+    }
+
+
+    waveLabel(
+        "SOUND WAVE",
+        25,
+        35,
+        {
+            color: "#22d3ee",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "Pressure Variation",
+        width * 0.35,
+        center - 120,
+        {
+            color: "#facc15"
+        }
+    );
+
+
+    waveLabel(
+        "Particle Motion",
+        width * 0.35,
+        center + 165,
+        {
+            color: "#60a5fa"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LIGHT WAVE
+========================================================= */
+
+function drawLight(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const center =
+        height / 2;
+
+
+    /* ELECTRIC FIELD */
+
+    ctx.strokeStyle =
+        "#facc15";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 2
+    ) {
+
+        const phase =
+            wavePhase(
+                x,
+                p
+            );
+
+
+        const y =
+            center +
+            p.a *
+            1.25 *
+            Math.sin(
+                phase
+            );
+
+
+        if (x === 0) {
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            ctx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+
+    /* MAGNETIC FIELD */
+
+    ctx.strokeStyle =
+        "#60a5fa";
+
+    ctx.beginPath();
+
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 2
+    ) {
+
+        const phase =
+            wavePhase(
+                x,
+                p
+            );
+
+
+        const y =
+            center +
+            p.a *
+            1.25 *
+            Math.cos(
+                phase
+            );
+
+
+        if (x === 0) {
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            ctx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+
+    waveLabel(
+        "ELECTROMAGNETIC LIGHT WAVE",
+        25,
+        35,
+        {
+            color: "#facc15",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "Electric Field",
+        width * 0.18,
+        center - p.a * 1.1,
+        {
+            color: "#facc15"
+        }
+    );
+
+
+    waveLabel(
+        "Magnetic Field",
+        width * 0.58,
+        center + p.a * 1.1 + 35,
+        {
+            color: "#60a5fa"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SEISMIC WAVE
+========================================================= */
+
+function drawSeismic(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+    const center =
+        height / 2;
+
+
+    /* P-WAVE */
+
+    const pY =
+        center - 100;
+
+
+    const spacing =
+        24;
+
+
+    for (
+        let baseX = 0;
+        baseX < width;
+        baseX += spacing
+    ) {
+
+        const phase =
+            wavePhase(
+                baseX,
+                p
+            );
+
+
+        const displacement =
+            p.a *
+            0.22 *
+            Math.sin(
+                phase
+            );
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            baseX +
+                displacement,
+            pY,
+            5,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "#f97316";
+
+        ctx.fill();
+
+    }
+
+
+    /* S-WAVE */
+
+    ctx.strokeStyle =
+        "#22c55e";
+
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 2
+    ) {
+
+        const phase =
+            wavePhase(
+                x,
+                p
+            );
+
+
+        const y =
+            center +
+            p.a *
+            1.2 *
+            Math.sin(
+                phase
+            );
+
+
+        if (x === 0) {
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            ctx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+
+    waveLabel(
+        "SEISMIC WAVES",
+        25,
+        35,
+        {
+            color: "#38bdf8",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "P-Wave",
+        width * 0.18,
+        pY - 30,
+        {
+            color: "#f97316"
+        }
+    );
+
+
+    waveLabel(
+        "S-Wave",
+        width * 0.60,
+        center + p.a * 1.2 + 30,
+        {
+            color: "#22c55e"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   WATER WAVE
+========================================================= */
+
+function drawWater(p) {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+
+    const centerX =
+        width / 2;
+
+    const centerY =
+        height / 2;
+
+
+    const maxRadius =
+        Math.max(
+            width,
+            height
+        ) * 0.75;
+
+
+    /*
+        Ripple speed follows wave speed.
+
+        Ripple spacing is determined by
+        frequency.
+
+        This means both controls visibly
+        affect the water simulation.
+    */
+
+    const visualSpeed =
+        p.visualSpeed;
+
+
+    const visualWavelength =
+        p.visualWavelength;
+
+
+    const distance =
+        (
+            simulationTime *
+            visualSpeed
+        );
+
+
+    const spacing =
+        Math.max(
+            45,
+            visualWavelength
+        );
+
+
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
+
+        let radius =
+            (
+                distance +
+                i * spacing
+            ) %
+            maxRadius;
+
+
+        const alpha =
+            1 -
+            radius /
+            maxRadius;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            centerX,
+            centerY,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.strokeStyle =
+            `rgba(
+                56,
+                189,
+                248,
+                ${Math.max(
+                    0.05,
+                    alpha
+                )}
+            )`;
+
+
+        ctx.lineWidth =
+            Math.max(
+                1,
+                p.a / 25
+            );
+
+
+        ctx.stroke();
+
+    }
+
+
+    /* CENTER */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        5 + p.a * 0.05,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#22d3ee";
+
+    ctx.fill();
+
+
+    waveLabel(
+        "WATER WAVE",
+        25,
+        35,
+        {
+            color: "#38bdf8",
+            size: 16
+        }
+    );
+
+
+    waveLabel(
+        "Ripple / Wave Front",
+        width * 0.35,
+        centerY,
+        {
+            color: "#60a5fa"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MAIN DRAW
+========================================================= */
+
+function draw() {
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
+        canvas.clientHeight;
+
+
+    if (
+        width <= 0 ||
+        height <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const p =
+        getParameters();
+
+
+    drawBackground(
+        width,
+        height
+    );
+
+
+    switch (
+        currentWave
+    ) {
+
+        case "water":
+
+            drawWater(p);
+
+            break;
+
+
+        case "sound":
+
+            drawSound(p);
+
+            break;
+
+
+        case "light":
+
+            drawLight(p);
+
+            break;
+
+
+        case "transverse":
+
+            drawTransverse(p);
+
+            break;
+
+
+        case "seismic":
+
+            drawSeismic(p);
+
+            break;
+
+
+        case "longitudinal":
+
+            drawLongitudinal(p);
+
+            break;
+
+    }
+
+}
+
+
+/* =========================================================
+   WAVE TABS
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".waveTab"
+    )
+    .forEach(
+        tab => {
+
+            tab.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".waveTab"
+                        )
+                        .forEach(
+                            other => {
+
+                                other.classList
+                                    .remove(
+                                        "active"
+                                    );
+
+                            }
+                        );
+
+
+                    tab.classList.add(
+                        "active"
+                    );
+
+
+                    currentWave =
+                        tab.dataset.wave;
+
+
+                    updateCharacter();
+
+                    draw();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   PLAY / PAUSE
+========================================================= */
+
+playPause.addEventListener(
+    "click",
+    () => {
+
+        isPlaying =
+            !isPlaying;
+
+
+        playPause.textContent =
+            isPlaying
+                ? "⏸ Pause"
+                : "▶ Play";
+
+
+        /*
+            Reset timing reference so
+            pausing does not cause a jump.
+        */
+
+        lastTime =
+            performance.now();
+
+    }
+);
+
+
+/* =========================================================
+   STEP
+========================================================= */
+
+stepButton.addEventListener(
+    "click",
+    () => {
+
+        simulationTime +=
+            0.05;
+
+        draw();
+
+    }
+);
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+resetButton.addEventListener(
+    "click",
+    () => {
+
+        frequency.value =
+            "1";
+
+        amplitude.value =
+            "50";
+
+        speed.value =
+            "100";
+
+
+        simulationTime =
+            0;
+
+
+        currentWave =
+            "water";
+
+
+        isPlaying =
+            true;
+
+
+        document
+            .querySelectorAll(
+                ".waveTab"
+            )
+            .forEach(
+                tab => {
+
+                    tab.classList.remove(
+                        "active"
+                    );
+
+
+                    if (
+                        tab.dataset.wave ===
+                        "water"
+                    ) {
+
+                        tab.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+
+        playPause.textContent =
+            "⏸ Pause";
+
+
+        updateUI();
+
+        updateCharacter();
+
+        draw();
+
+
+        lastTime =
+            performance.now();
+
+    }
+);
+
+
+/* =========================================================
+   ANIMATION LOOP
+========================================================= */
+
+function animationLoop(
+    now
+) {
+
+    const delta =
+        Math.min(
+            0.05,
+            (now - lastTime) /
+            1000
+        );
+
+
+    lastTime =
+        now;
+
+
+    if (isPlaying) {
+
+        simulationTime +=
+            delta;
+
+    }
+
+
+    draw();
+
+
+    requestAnimationFrame(
+        animationLoop
+    );
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+const loadingScreen =
+    document.getElementById(
+        "loadingScreen"
+    );
+
+const mainContent =
+    document.getElementById(
+        "mainContent"
+    );
+
+const loadingPercent =
+    document.getElementById(
+        "loadingPercent"
+    );
+
+
+const loadingStart =
+    performance.now();
+
+
+function loadingAnimation(
+    now
+) {
+
+    const elapsed =
+        now -
+        loadingStart;
+
+
+    const percent =
+        Math.min(
+            100,
+            Math.floor(
+                (
+                    elapsed /
+                    3000
+                ) * 100
+            )
+        );
+
+
+    loadingPercent.textContent =
+        percent + "%";
+
+
+    if (
+        elapsed < 3000
+    ) {
+
+        requestAnimationFrame(
+            loadingAnimation
+        );
+
+    } else {
+
+        loadingScreen.classList.add(
+            "hide"
+        );
+
+        mainContent.classList.add(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   START APPLICATION
+========================================================= */
+
+updateUI();
+
+updateCharacter();
+
+resizeCanvas();
+
+draw();
+
+requestAnimationFrame(
+    animationLoop
+);
+
+requestAnimationFrame(
+    loadingAnimation
+);
+
+</script>
+
+</body>
+</html>
